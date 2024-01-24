@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-''' Log stats '''
+''' Log stats - new version '''
 from pymongo import MongoClient
 
 
@@ -15,12 +15,18 @@ def stats_about_nginx_logs(collection):
     print('Methods:')
     for method in methods:
         res = collection.count_documents({'method': method})
-        print(f'\tmethod {method}: {res}')
+        print(f'	method {method}: {res}')
 
     # count status check and print it out
     num_checks = collection.count_documents(
         {'method': 'GET', 'path': '/status'})
     print(f'{num_checks} status check')
+
+    #
+    res = collection.find().sort({'ip'}).limit(10)
+    print('IPs:')
+    for ip in res:
+        print(f'\t{ip}')
 
 
 if __name__ == '__main__':
