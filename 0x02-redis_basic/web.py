@@ -13,14 +13,12 @@ def cache_response(fn: Callable) -> Callable:
     ''' cache response '''
     @wraps(fn)
     def wrapper(url: str) -> str:
-        r.incr(f'count:{url}')
         cached_response = r.get(url)
         if cached_response:
             return cached_response.decode('utf-8')
 
         response = fn(url)
         r.setex(url, 10, response)
-        r.set(f'count:{url}', 0)
 
         return response
 
@@ -30,5 +28,6 @@ def cache_response(fn: Callable) -> Callable:
 @cache_response
 def get_page(url: str) -> str:
     ''' get page '''
+    r.incr(f'count:{url}')
     response = requests.get(url)
     return response.text
