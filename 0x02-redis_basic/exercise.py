@@ -3,7 +3,7 @@
 import uuid
 import redis
 from functools import wraps
-from typing import Union, Callable
+from typing import Union, Callable, Optional
 ''' Writing strings to Redis '''
 
 
@@ -66,19 +66,21 @@ class Cache:
         self._redis.set(key, data)
         return key
 
-    def get(self, key: str, fn=None):
+    def get(
+            self, key: str, fn: Optional[Callable] = None
+    ) -> Union[str, bytes, int, float]:
         ''' get value by its data type '''
         value = self._redis.get(key)
         if fn:
             return fn(value)
         return value
 
-    def get_str(self, key):
+    def get_str(self, key: str) -> str:
         ''' get value of key with the type of string '''
         value = self._redis.get(key)
         return str(value)
 
-    def get_int(self, key):
+    def get_int(self, key: str) -> int:
         ''' get value of key with the type of integer '''
         value = self._redis.get(key)
         return int(value)
