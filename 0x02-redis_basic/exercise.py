@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
+''' Writing strings to Redis '''
 
 import uuid
 import redis
 from functools import wraps
 from typing import Union, Callable, Optional
-''' Writing strings to Redis '''
 
 
 def count_calls(method: Callable) -> Callable:
@@ -39,7 +39,7 @@ def replay(method: Callable) -> None:
     input_vals = method.__self__._redis.lrange(input_key, 0, -1)
     output_vals = method.__self__._redis.lrange(output_key, 0, -1)
 
-    print('{} was called {}'.format(
+    print('{} was called {} times:'.format(
         method.__qualname__, len(input_vals)))
 
     for key, val in zip(output_vals, input_vals):
