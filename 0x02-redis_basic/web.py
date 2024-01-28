@@ -20,7 +20,7 @@ def cache_response(fn: Callable) -> Callable:
 
         response = fn(url)
         r.setex(url, 10, response)
-        r.set(f'count:{url}', 1)
+        r.set(f'count:{url}', 0)
 
         return response
 
