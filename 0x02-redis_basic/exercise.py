@@ -33,26 +33,18 @@ def call_history(method: Callable) -> Callable:
 
 def replay(method) -> None:
     '''  Retrieving lists '''
-    r = redis.Redis()
+    input_key = '{}:inputs'.format(method.__qualname__)
+    output_key = '{}:outputs'.format(method.__qualname__)
 
-    with r.pipeline() as pipe:
-        pipe.multi()
-        pipe.lrange(f'{method.__qualname__}:inputs', 0, -1)
-        pipe.lrange(f'{method.__qualname__}:outputs', 0, -1)
-        pipe.get(method.__qualname__)
-        results = pipe.execute()
+    input_vals = method.__self__._redis.lrange(input_key, 0, -1)
+    output_vals = method.__self__._redis.lrange(output_key, 0, -1)
 
-    input_keys = results[0]
-    output_val = results[1]
-    count_calls = results[2]
+    print('{} was called {}'.format(
+        method.__qualname__, len(input_vals)))
 
-    key_val = zip(input_keys, output_val)
-
-    print(f'{method.__qualname__} was called {count_calls.decode("utf-8")} times:')
-    for pair in key_val:
-        key = pair[1].decode('utf-8')
-        val = pair[0].decode('utf-8')
-        print(f'{method.__qualname__}(*({val},)) -> {key}')
+    for key, val in zip(output_vals, input_vals):
+        print('{}(*{}) -> {}'.format(method.__qualname__,
+              val.decode("utf-8"), key.decode("utf-8")))
 
 
 class Cache:
