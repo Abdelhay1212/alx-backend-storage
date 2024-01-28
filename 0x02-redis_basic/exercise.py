@@ -31,7 +31,7 @@ def call_history(method: Callable) -> Callable:
     return wrapper
 
 
-def replay(method) -> None:
+def replay(method: Callable) -> None:
     '''  Retrieving lists '''
     input_key = '{}:inputs'.format(method.__qualname__)
     output_key = '{}:outputs'.format(method.__qualname__)
@@ -43,8 +43,11 @@ def replay(method) -> None:
         method.__qualname__, len(input_vals)))
 
     for key, val in zip(output_vals, input_vals):
-        print('{}(*{}) -> {}'.format(method.__qualname__,
-              val.decode("utf-8"), key.decode("utf-8")))
+        print(
+            '{}(*{}) -> {}'.format(
+                method.__qualname__, val.decode("utf-8"), key.decode("utf-8")
+            )
+        )
 
 
 class Cache:
