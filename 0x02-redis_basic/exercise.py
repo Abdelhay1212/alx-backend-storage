@@ -31,6 +31,30 @@ def call_history(method: Callable) -> Callable:
     return wrapper
 
 
+def replay(method) -> None:
+    '''  Retrieving lists '''
+    r = redis.Redis()
+
+    with r.pipeline() as pipe:
+        pipe.multi()
+        pipe.lrange(f'{method.__qualname__}:inputs', 0, -1)
+        pipe.lrange(f'{method.__qualname__}:outputs', 0, -1)
+        pipe.get(method.__qualname__)
+        results = pipe.execute()
+
+    input_keys = results[0]
+    output_val = results[1]
+    count_calls = results[2]
+
+    key_val = zip(input_keys, output_val)
+
+    print(f'{method.__qualname__} was called {count_calls.decode("utf-8")} times:')
+    for pair in key_val:
+        key = pair[1].decode('utf-8')
+        val = pair[0].decode('utf-8')
+        print(f'{method.__qualname__}(*({val},)) -> {key}')
+
+
 class Cache:
     ''' cache class '''
 
